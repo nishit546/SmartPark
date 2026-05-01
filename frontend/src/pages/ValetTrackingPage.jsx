@@ -1,8 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, Navigate } from 'react-router-dom';
 import { Car, MapPin, PhoneCall, Star, CheckCircle2, Clock, Navigation } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { valetService } from '../services/apiService';
+
+const routeCoordinates = [
+  { lat: 20.5937, lng: 78.9629 },
+  { lat: 20.5945, lng: 78.9635 },
+  { lat: 20.5952, lng: 78.9642 },
+  { lat: 20.5960, lng: 78.9650 },
+  { lat: 20.5968, lng: 78.9660 },
+  { lat: 20.5975, lng: 78.9668 },
+  { lat: 20.5982, lng: 78.9675 },
+];
 
 const trackingSteps = [
   { id: 1, title: 'Request Received', description: 'We are locating a valet for you.', status: 'received' },
@@ -18,6 +29,22 @@ const ValetTrackingPage = () => {
   const [eta, setEta] = useState(5);
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [map, setMap] = useState(null);
+  const [routeIndex, setRouteIndex] = useState(0);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+  });
+
+  const onLoad = useCallback(function callback(map) {
+    setMap(map);
+  }, []);
+
+  const onUnmount = useCallback(function callback(map) {
+    setMap(null);
+  }, []);
 
   if (!bookingId) {
     return <Navigate to="/booking" replace />;
@@ -47,18 +74,33 @@ const ValetTrackingPage = () => {
     // In a real app, you might poll here or use WebSockets
   }, [bookingId]);
 
-  // For the demo, we'll still keep the auto-progression simulation if you want, 
-  // but let's make it fetch real data initially.
+  // Progress timeline and car movement simulation
   useEffect(() => {
     if (loading || currentStep >= trackingSteps.length) return;
 
+    // Timeline progress
     const timer = setTimeout(() => {
       setCurrentStep(prev => prev + 1);
       setEta(prev => Math.max(0, prev - 1));
     }, 6000);
 
-    return () => clearTimeout(timer);
-  }, [currentStep, loading]);
+    // Map car movement
+    const mapTimer = setInterval(() => {
+      setRouteIndex((prev) => {
+        const nextIndex = prev + 1;
+        if (nextIndex < routeCoordinates.length) {
+          if (map) map.panTo(routeCoordinates[nextIndex]);
+          return nextIndex;
+        }
+        return prev;
+      });
+    }, 2500); // Car moves every 2.5s
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(mapTimer);
+    };
+  }, [currentStep, loading, map]);
 
   if (loading) {
     return (
@@ -83,8 +125,42 @@ const ValetTrackingPage = () => {
 
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Tracking Timeline */}
+        {/* Tracking Timeline & Map */}
         <div className="lg:col-span-2 space-y-6">
+          
+          {/* Map Simulation */}
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden relative h-[350px]">
+            {isLoaded ? (
+              <GoogleMap
+                mapContainerStyle={{ width: '100%', height: '100%' }}
+                center={routeCoordinates[routeIndex]}
+                zoom={16}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                options={{ disableDefaultUI: true }}
+              >
+                {/* Valet Car Marker */}
+                <Marker
+                  position={routeCoordinates[routeIndex]}
+                  icon={{
+                    url: 'https://maps.google.com/mapfiles/ms/icons/cabs.png', // Car icon
+                  }}
+                />
+                {/* Destination Marker */}
+                <Marker
+                  position={routeCoordinates[routeCoordinates.length - 1]}
+                  icon={{
+                    url: 'https://maps.google.com/mapfiles/ms/icons/parking.png', // Parking destination
+                  }}
+                />
+              </GoogleMap>
+            ) : (
+              <div className="flex items-center justify-center h-full bg-slate-100 text-slate-400">
+                Loading Map...
+              </div>
+            )}
+          </div>
+
           <div className="bg-white p-6 md:p-8 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-slate-100">
               <div 
