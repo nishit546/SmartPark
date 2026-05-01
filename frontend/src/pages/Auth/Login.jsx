@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../components/Auth/AuthLayout';
 import AuthInput from '../../components/Auth/AuthInput';
+import toast from 'react-hot-toast';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -27,10 +28,13 @@ const Login = () => {
   const handleSubmit = async (values, { setSubmitting, setStatus }) => {
     try {
       await login(values.email, values.password, role);
+      toast.success('Successfully logged in!');
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Login error:', error);
-      setStatus(error.message || 'Invalid credentials. Please try again.');
+      const errorMsg = error.message || 'Invalid credentials. Please try again.';
+      setStatus(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -39,14 +43,17 @@ const Login = () => {
   const handleGoogleLogin = async () => {
     try {
       await googleLogin();
+      toast.success('Successfully logged in with Google!');
       navigate('/map', { replace: true });
     } catch (error) {
       console.error(error);
+      toast.error('Google login failed. Please try again.');
     }
   };
 
   const handleGuestLogin = () => {
     loginAsGuest();
+    toast.success('Logged in as Guest!');
     navigate('/map', { replace: true });
   };
 

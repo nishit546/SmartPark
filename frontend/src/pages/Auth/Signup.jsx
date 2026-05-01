@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../components/Auth/AuthLayout';
 import AuthInput from '../../components/Auth/AuthInput';
+import toast from 'react-hot-toast';
 
 const SignupSchema = Yup.object().shape({
   name: Yup.string()
@@ -33,10 +34,13 @@ const Signup = () => {
   const handleSubmit = async (values, { setSubmitting, setStatus }) => {
     try {
       await signup(values.email, values.password, values.name);
+      toast.success('Account created successfully!');
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Signup error:', error);
-      setStatus(error.message || 'Failed to create account. Please try again.');
+      const errorMsg = error.message || 'Failed to create account. Please try again.';
+      setStatus(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -45,9 +49,11 @@ const Signup = () => {
   const handleGoogleSignup = async () => {
     try {
       await googleLogin();
+      toast.success('Successfully signed up with Google!');
       navigate(from, { replace: true });
     } catch (error) {
       console.error(error);
+      toast.error('Google signup failed. Please try again.');
     }
   };
 

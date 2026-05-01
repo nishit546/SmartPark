@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 
 // ─── Lazy-loaded pages ────────────────────────────────────────────────────────
 const Home             = lazy(() => import('./pages/Home'));
@@ -64,6 +65,7 @@ function App() {
           </Route>
         </Routes>
       </Suspense>
+      <Toaster position="top-right" />
     </AuthProvider>
   );
 }

@@ -4,6 +4,7 @@ import { Calendar, Clock, Car, CreditCard, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { parkingService, bookingService } from '../services/apiService';
+import toast from 'react-hot-toast';
 
 const BookingPage = () => {
   const navigate = useNavigate();
@@ -73,6 +74,7 @@ const BookingPage = () => {
       const response = await bookingService.createBooking(bookingData);
       
       if (response.success) {
+        toast.success('Booking initialized successfully!');
         // Navigate to Payment page, passing booking details via state
         navigate('/payment', { 
           state: { 
@@ -85,10 +87,12 @@ const BookingPage = () => {
             } 
           } 
         });
+      } else {
+        toast.error('Booking failed. Please check details and try again.');
       }
     } catch (error) {
       console.error('Booking failed:', error);
-      alert('Something went wrong. Please try again.');
+      toast.error(error.message || 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
