@@ -96,10 +96,11 @@ SmartPark provides:
 
 ---
 
-### Fake API Layer
+### Full-Stack API Integration
 
-* Simulated backend using async functions
-* Handles loading and error states
+* Connected to a custom Node.js/Express backend
+* Data persistence using MongoDB
+* Secure communication using Axios and Firebase Auth Tokens
 
 ---
 
@@ -115,6 +116,8 @@ SmartPark provides:
 ## Tech Stack
 
 * **Frontend:** React (Vite)
+* **Backend:** Node.js, Express
+* **Database:** MongoDB
 * **Styling:** Tailwind CSS, MUI
 * **State Management:** Redux Toolkit
 * **Maps:** Google Maps API
@@ -140,10 +143,10 @@ src/
 
 ## How It Works
 
-* Parking data is stored locally and managed via Redux
-* API calls are simulated using Promises
-* Real-time behavior is mimicked using setInterval
-* Car movement is achieved by updating coordinates over time
+* Parking data is fetched from the MongoDB backend and managed via Redux Toolkit
+* API calls are handled via Axios with request interceptors for authentication
+* Real-time UI behavior is mimicked using `setInterval` hooks
+* Car movement is simulated on the map using progressively updating coordinates
 
 ---
 
@@ -181,10 +184,10 @@ npm run dev
 
 ## Future Improvements
 
-* Backend integration (Node.js / Firebase)
-* Real-time GPS tracking
-* Payment integration
-* AI-based parking prediction
+* Real-time GPS hardware tracking
+* Payment gateway integration (Stripe / Razorpay)
+* AI-based parking availability prediction
+* WebSockets for instant live map updates
 
 ---
 
