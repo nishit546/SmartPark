@@ -59,6 +59,37 @@ const MapPage = () => {
     setMap(null);
   }, []);
 
+  // Real-Time Simulation Effect
+  useEffect(() => {
+    if (zones.length === 0) return;
+
+    const intervalId = setInterval(() => {
+      setZones((prevZones) =>
+        prevZones.map((zone) => {
+          // 30% chance to change spots for any given zone every 4 seconds
+          if (Math.random() > 0.7) {
+            const change = Math.random() > 0.5 ? 1 : -1;
+            // Ensure spots don't drop below 0 and prevent string concatenation
+            const currentSpots = parseInt(zone.availableSpots, 10) || 0;
+            const newSpots = Math.max(0, currentSpots + change);
+            return { ...zone, availableSpots: newSpots };
+          }
+          return zone;
+        })
+      );
+    }, 4000);
+
+    return () => clearInterval(intervalId);
+  }, [zones.length]);
+
+  const getMarkerIcon = (zone) => {
+    const spots = parseInt(zone.availableSpots, 10) || 0;
+    // If valet, we can keep it distinct or color code it too. Let's color code by availability for all.
+    if (spots === 0) return 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'; // Occupied
+    if (spots < 5) return 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png'; // Limited
+    return 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'; // Available
+  };
+
   const onLoadAutocomplete = (autocomplete) => {
     autocompleteRef.current = autocomplete;
   };
@@ -146,9 +177,9 @@ const MapPage = () => {
               <Marker
                 key={zone._id}
                 position={{ lat: zone.location.lat, lng: zone.location.lng }}
-                title={zone.name}
+                title={`${zone.name} (${zone.availableSpots} spots)`}
                 icon={{
-                  url: zone.type === 'valet' ? 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png' : 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  url: getMarkerIcon(zone)
                 }}
               />
             ))}
@@ -189,7 +220,12 @@ const MapPage = () => {
                 >
                   <div>
                     <p className="font-semibold text-sm">{zone.name}</p>
-                    <p className="text-xs text-neutral">{zone.availableSpots} spots available</p>
+                    <p className={`text-xs font-medium ${
+                      parseInt(zone.availableSpots, 10) === 0 ? 'text-red-500' :
+                      parseInt(zone.availableSpots, 10) < 5 ? 'text-amber-500' : 'text-emerald-500'
+                    }`}>
+                      {zone.availableSpots} spots available
+                    </p>
                   </div>
                   <span className={`text-xs font-bold px-2 py-1 rounded-lg ${
                     zone.type === 'valet' ? 'bg-primary/10 text-primary' : 'bg-green-100 text-green-700'

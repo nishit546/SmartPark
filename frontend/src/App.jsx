@@ -15,6 +15,8 @@ const PaymentPage      = lazy(() => import('./pages/PaymentPage'));
 const ReceiptPage      = lazy(() => import('./pages/ReceiptPage'));
 const ValetTrackingPage = lazy(() => import('./pages/ValetTrackingPage'));
 const AdminPage        = lazy(() => import('./pages/AdminPage'));
+const ManagementPage   = lazy(() => import('./pages/ManagementPage'));
+const AnalyticsPage    = lazy(() => import('./pages/AnalyticsPage'));
 const Settings         = lazy(() => import('./pages/Settings'));
 
 
@@ -38,10 +40,17 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
 
+            {/* Global Settings (accessible by all logged-in roles) */}
+            <Route element={<ProtectedRoute allowedRoles={['user', 'guest', 'admin']} />}>
+               <Route path="/settings" element={<Settings />} />
+            </Route>
+
             {/* Protected Routes for Admin */}
             <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/management" element={<ManagementPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
             </Route>
 
             {/* Protected Routes for User */}
@@ -51,7 +60,6 @@ function App() {
               <Route path="/payment" element={<PaymentPage />} />
               <Route path="/receipt" element={<ReceiptPage />} />
               <Route path="/valet" element={<ValetTrackingPage />} />
-              <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>
         </Routes>
