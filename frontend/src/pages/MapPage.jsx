@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, Navigation, Car, Search } from 'lucide-react';
-import { GoogleMap, useJsApiLoader, Marker, Autocomplete } from '@react-google-maps/api';
+import { MapPin, Navigation, Car, Search, Flame } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, Marker, Autocomplete, HeatmapLayer } from '@react-google-maps/api';
 import { parkingService } from '../services/apiService';
 
 const containerStyle = {
@@ -13,7 +13,7 @@ const containerStyle = {
 };
 
 // Define libraries outside the component to avoid re-renders
-const libraries = ['places'];
+const libraries = ['places', 'visualization'];
 
 // Default center: Center of India
 const defaultCenter = {
@@ -26,6 +26,7 @@ const MapPage = () => {
   const [searchResultMarker, setSearchResultMarker] = useState(null);
   const [zones, setZones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showHeatmap, setShowHeatmap] = useState(false);
   const autocompleteRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -90,6 +91,21 @@ const MapPage = () => {
     return 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'; // Available
   };
 
+  const heatmapData = React.useMemo(() => {
+    if (!window.google || !window.google.maps || zones.length === 0) return [];
+    
+    return zones.map(zone => {
+      // Calculate weight based on low availability (high demand = high weight)
+      const spots = parseInt(zone.availableSpots, 10) || 0;
+      const weight = Math.max(1, 50 - spots); 
+      
+      return {
+        location: new window.google.maps.LatLng(zone.location.lat, zone.location.lng),
+        weight: weight
+      };
+    });
+  }, [zones]);
+
   const onLoadAutocomplete = (autocomplete) => {
     autocompleteRef.current = autocomplete;
   };
@@ -125,6 +141,17 @@ const MapPage = () => {
           <p className="text-neutral mt-1">Search locations and find parking spots</p>
         </div>
         <div className="flex gap-3">
+          <button 
+            className={`px-4 py-2 rounded-xl shadow-sm border flex items-center gap-2 text-sm font-semibold transition-colors ${
+              showHeatmap 
+                ? 'bg-amber-500 text-white border-amber-600 shadow-amber-500/30' 
+                : 'bg-white text-neutral-dark border-gray-100 hover:bg-gray-50'
+            }`}
+            onClick={() => setShowHeatmap(!showHeatmap)}
+          >
+            <Flame size={18} className={showHeatmap ? "text-white" : "text-amber-500"} />
+            Heatmap
+          </button>
           <button 
             className="px-4 py-2 bg-white rounded-xl shadow-sm border border-gray-100 flex items-center gap-2 text-sm font-semibold text-neutral-dark hover:bg-gray-50 transition-colors"
             onClick={() => {
@@ -173,7 +200,7 @@ const MapPage = () => {
             }}
           >
             {/* Render markers for real parking zones */}
-            {zones.map((zone) => (
+            {!showHeatmap && zones.map((zone) => (
               <Marker
                 key={zone._id}
                 position={{ lat: zone.location.lat, lng: zone.location.lng }}
@@ -183,6 +210,33 @@ const MapPage = () => {
                 }}
               />
             ))}
+
+            {/* Render Heatmap */}
+            {showHeatmap && heatmapData.length > 0 && (
+              <HeatmapLayer
+                data={heatmapData}
+                options={{
+                  radius: 40,
+                  opacity: 0.8,
+                  gradient: [
+                    'rgba(0, 255, 255, 0)',
+                    'rgba(0, 255, 255, 1)',
+                    'rgba(0, 191, 255, 1)',
+                    'rgba(0, 127, 255, 1)',
+                    'rgba(0, 63, 255, 1)',
+                    'rgba(0, 0, 255, 1)',
+                    'rgba(0, 0, 223, 1)',
+                    'rgba(0, 0, 191, 1)',
+                    'rgba(0, 0, 159, 1)',
+                    'rgba(0, 0, 127, 1)',
+                    'rgba(63, 0, 91, 1)',
+                    'rgba(127, 0, 63, 1)',
+                    'rgba(191, 0, 31, 1)',
+                    'rgba(255, 0, 0, 1)'
+                  ]
+                }}
+              />
+            )}
 
             {/* Render marker for searched location */}
             {searchResultMarker && (
