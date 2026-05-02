@@ -67,15 +67,7 @@ smartpark/
 └── README.md
 ```
 
-## 📸 Screenshots
-<div align="center">
-  <img src="./frontend/src/assets/Screenshot%202026-04-22%20231850.png" width="400" alt="Dashboard View">
-  <img src="./frontend/src/assets/Screenshot%202026-04-22%20231909.png" width="400" alt="Map View">
-  <img src="./frontend/src/assets/Screenshot%202026-04-22%20231925.png" width="400" alt="Booking Modal">
-  <img src="./frontend/src/assets/Screenshot%202026-04-22%20232103.png" width="400" alt="Valet Tracking">
-</div>
 
----
 
 ## 🛠️ Setup & Installation
 
