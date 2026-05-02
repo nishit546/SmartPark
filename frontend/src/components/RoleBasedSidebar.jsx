@@ -25,6 +25,7 @@ const RoleBasedSidebar = () => {
 
   const adminLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Admin Console', path: '/admin', icon: <BarChart size={20} /> },
     { name: 'Parking Management', path: '/management', icon: <Car size={20} /> },
     { name: 'Analytics', path: '/analytics', icon: <BarChart size={20} /> },
   ];
@@ -32,7 +33,7 @@ const RoleBasedSidebar = () => {
   const links = userRole === 'admin' ? adminLinks : userLinks;
 
   return (
-    <aside className={`w-64 border-r transition-colors duration-300 flex flex-col h-[calc(100vh-5rem)] sticky top-20 ${isDark ? 'bg-slate-900 border-slate-700/50' : 'bg-white border-slate-200/50'}`}>
+    <aside className={`w-64 border-r transition-colors duration-300 flex flex-col h-full overflow-y-auto ${isDark ? 'bg-slate-900 border-slate-700/50' : 'bg-white border-slate-200/50'}`}>
       <div className="flex-1 py-6 px-4 space-y-1">
         <p className={`px-4 text-xs font-bold uppercase tracking-wider mb-4 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
           {userRole === 'admin' ? 'Admin Tools' : 'User Menu'}

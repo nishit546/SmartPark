@@ -5,8 +5,9 @@ const router = express.Router();
 
 router.get('/', getAllBookings);
 router.post('/', createBooking);
-router.get('/:id', getBookingById);
+// IMPORTANT: specific named routes must come BEFORE parameterized /:id routes
 router.get('/user/:userId', getUserBookings);
 router.patch('/:id/status', updateBookingStatus);
+router.get('/:id', getBookingById);
 
 export default router;

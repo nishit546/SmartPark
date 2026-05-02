@@ -29,6 +29,7 @@ const ValetTrackingPage = () => {
   const [eta, setEta] = useState(5);
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   const [map, setMap] = useState(null);
   const [routeIndex, setRouteIndex] = useState(0);
@@ -46,11 +47,14 @@ const ValetTrackingPage = () => {
     setMap(null);
   }, []);
 
-  if (!bookingId) {
-    return <Navigate to="/booking" replace />;
-  }
-
+  // All hooks must be called before any conditional returns
   useEffect(() => {
+    if (!bookingId) {
+      setShouldRedirect(true);
+      setLoading(false);
+      return;
+    }
+
     const fetchStatus = async () => {
       try {
         const response = await valetService.getValetStatus(bookingId);
@@ -64,7 +68,8 @@ const ValetTrackingPage = () => {
           setEta(response.data.eta || 5);
         }
       } catch (error) {
-        console.error('Error fetching valet status:', error);
+        // If valet record not found yet, start from step 1 (received) anyway
+        console.warn('Valet status not found, starting simulation from step 1:', error.message);
       } finally {
         setLoading(false);
       }
@@ -102,6 +107,11 @@ const ValetTrackingPage = () => {
     };
   }, [currentStep, loading, map]);
 
+  // Now safe to do conditional returns (after all hooks)
+  if (shouldRedirect) {
+    return <Navigate to="/booking" replace />;
+  }
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -111,7 +121,7 @@ const ValetTrackingPage = () => {
   }
 
   return (
-    <div className="h-full flex flex-col p-6 overflow-y-auto">
+    <div className="flex flex-col p-6">
       <Helmet>
         <title>Valet Tracking — SmartPark</title>
         <meta name="description" content="Track your valet in real-time. See live status updates of your vehicle from pickup to parking." />
@@ -248,7 +258,7 @@ const ValetTrackingPage = () => {
             <div className="bg-white/10 rounded-2xl p-4 flex flex-col items-center justify-center">
               <p className="text-xs text-white/60 uppercase tracking-wider mb-1">License Plate</p>
               <h2 className="text-2xl font-mono font-bold tracking-widest text-accent uppercase">
-                {bookingData?.licensePlate || 'Loading...'}
+                {bookingData?.licensePlate || location.state?.licensePlate || 'N/A'}
               </h2>
             </div>
             
@@ -259,11 +269,11 @@ const ValetTrackingPage = () => {
               </div>
               <div className="flex justify-between items-center border-b border-white/10 pb-2">
                 <span className="text-white/60">Request Time</span>
-                <span className="font-semibold">{bookingData?.time || 'Pending'}</span>
+                <span className="font-semibold">{bookingData?.time || location.state?.time || 'Pending'}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-white/60">Booking ID</span>
-                <span className="font-mono text-white/80">#{bookingId.slice(-6).toUpperCase()}</span>
+                <span className="font-mono text-white/80">#{bookingId ? bookingId.slice(-6).toUpperCase() : '------'}</span>
               </div>
             </div>
           </div>
