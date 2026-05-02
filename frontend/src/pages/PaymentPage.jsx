@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { ShieldCheck, Smartphone, CheckCircle, CreditCard, Lock } from 'lucide-react';
+import { bookingService, valetService } from '../services/apiService';
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -24,28 +25,52 @@ const PaymentPage = () => {
   const handleSimulatePayment = () => {
     setIsProcessing(true);
     // Simulate network request for payment verification
-    setTimeout(() => {
-      setIsProcessing(false);
-      setPaymentSuccess(true);
-      
-      // Redirect to receipt after showing success for a brief moment
-      setTimeout(() => {
-        navigate('/receipt', { 
-          state: { 
-            bookingDetails: {
-              ...bookingDetails,
-              transactionId: `TXN${Math.floor(100000000 + Math.random() * 900000000)}`,
-              timestamp: new Date().toLocaleString()
-            } 
-          },
-          replace: true // Replace so they can't go back to the payment page
-        });
-      }, 1500);
+    setTimeout(async () => {
+      try {
+        const generatedTxnId = `TXN${Math.floor(100000000 + Math.random() * 900000000)}`;
+
+        // 1. Update booking status to 'confirmed' in the database
+        if (bookingDetails._id) {
+          await bookingService.updateStatus(bookingDetails._id, { 
+            status: 'confirmed', 
+            transactionId: generatedTxnId 
+          });
+
+          // 2. If it's a valet booking, create a valet request record
+          if (bookingDetails.zoneType === 'valet') {
+            try {
+              await valetService.createValetRequest(bookingDetails._id);
+            } catch (valetErr) {
+              console.warn('Valet request creation failed (may already exist):', valetErr.message);
+            }
+          }
+        }
+
+        setIsProcessing(false);
+        setPaymentSuccess(true);
+        
+        // Redirect to receipt after showing success for a brief moment
+        setTimeout(() => {
+          navigate('/receipt', { 
+            state: { 
+              bookingDetails: {
+                ...bookingDetails,
+                transactionId: generatedTxnId,
+                timestamp: new Date().toLocaleString()
+              } 
+            },
+            replace: true
+          });
+        }, 1500);
+      } catch (err) {
+        console.error('Payment confirmation failed:', err);
+        setIsProcessing(false);
+      }
     }, 2000);
   };
 
   return (
-    <div className="h-full flex flex-col p-6 overflow-y-auto">
+    <div className="flex flex-col p-6">
       <Helmet>
         <title>Secure Payment — SmartPark</title>
         <meta name="description" content="Complete your parking booking payment securely via UPI, GPay, PhonePe or Paytm." />

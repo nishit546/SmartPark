@@ -101,6 +101,10 @@ export const bookingService = {
 };
 
 export const valetService = {
+  createValetRequest: async (bookingId) => {
+    const response = await api.post('/valet', { bookingId });
+    return response.data;
+  },
   getValetStatus: async (bookingId) => {
     const response = await api.get(`/valet/${bookingId}`);
     return response.data;

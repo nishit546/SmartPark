@@ -20,7 +20,7 @@ const Settings = () => {
   const isDark = theme === 'dark';
 
   return (
-    <div className={`h-full flex flex-col p-6 overflow-y-auto transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
+    <div className={`flex flex-col p-6 transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
       <Helmet>
         <title>Settings — SmartPark</title>
         <meta name="description" content="Manage your SmartPark account settings, notifications, and preferences." />

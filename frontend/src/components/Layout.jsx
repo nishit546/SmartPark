@@ -14,7 +14,7 @@ const Layout = () => {
   const isDark = theme === 'dark';
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans antialiased transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'} selection:bg-indigo-100 selection:text-indigo-700`}>
+    <div className={`h-screen flex flex-col font-sans antialiased transition-colors duration-300 overflow-hidden ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'} selection:bg-indigo-100 selection:text-indigo-700`}>
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 h-20 backdrop-blur-xl border-b z-50 flex items-center px-8 lg:px-16 transition-all duration-300 ${isDark ? 'bg-slate-900/80 border-slate-700/50' : 'bg-white/70 border-slate-200/50'}`}>
         <Link to="/" className="flex items-center gap-3 group">
@@ -77,9 +77,9 @@ const Layout = () => {
       </nav>
 
       {/* Main Content with Optional Sidebar */}
-      <div className="flex flex-grow pt-20">
+      <div className="flex flex-1 pt-20 min-h-0">
         {isLoggedIn && !isAuthPage && <RoleBasedSidebar />}
-        <main className="flex-grow">
+        <main className="flex-1 min-h-0 overflow-y-auto">
           <Outlet />
         </main>
       </div>

@@ -18,7 +18,13 @@ const ReceiptPage = () => {
 
   const handleContinue = () => {
     if (isValet) {
-      navigate('/valet', { state: { bookingId: bookingDetails._id } });
+      navigate('/valet', { 
+        state: { 
+          bookingId: bookingDetails._id,
+          licensePlate: bookingDetails.licensePlate,
+          time: bookingDetails.time,
+        } 
+      });
     } else {
       navigate('/dashboard');
     }
@@ -29,7 +35,7 @@ const ReceiptPage = () => {
   };
 
   return (
-    <div className="h-full flex flex-col p-6 overflow-y-auto">
+    <div className="flex flex-col p-6">
       <Helmet>
         <title>Booking Confirmed — SmartPark</title>
         <meta name="description" content="Your SmartPark booking is confirmed. Download your digital receipt and track your valet." />

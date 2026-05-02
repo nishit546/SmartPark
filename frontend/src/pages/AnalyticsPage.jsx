@@ -77,7 +77,7 @@ const AnalyticsPage = () => {
   ];
 
   return (
-    <div className={`h-full flex flex-col p-6 lg:p-10 overflow-y-auto transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
+    <div className={`flex flex-col p-6 lg:p-10 transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
       <Helmet>
         <title>Analytics Dashboard — SmartPark</title>
       </Helmet>

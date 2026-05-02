@@ -3,12 +3,14 @@ import { Helmet } from 'react-helmet-async';
 import { Calendar, Clock, Car, CreditCard, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 import { parkingService, bookingService } from '../services/apiService';
 import toast from 'react-hot-toast';
 
 const BookingPage = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { mongoUser } = useAuth();
   const isDark = theme === 'dark';
   const [zones, setZones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +66,7 @@ const BookingPage = () => {
       
       const bookingData = {
         zoneId: formData.zone,
+        userId: mongoUser?._id || null,
         licensePlate: formData.licensePlate,
         date: formData.date,
         time: formData.time,
@@ -107,7 +110,7 @@ const BookingPage = () => {
   };
 
   return (
-    <div className={`h-full flex flex-col p-6 overflow-y-auto transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
+    <div className={`flex flex-col p-6 transition-colors duration-300 ${isDark ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'}`}>
       <Helmet>
         <title>Reserve a Parking Spot — SmartPark</title>
         <meta name="description" content="Book your parking spot or valet service in advance. Choose your zone, date, and duration." />
