@@ -67,7 +67,13 @@ smartpark/
 └── README.md
 ```
 
+## 📸 Screenshots
+<div align="center">
+  <img src="./frontend/src/assets/landing_page.png" width="400" alt="Landing Page">
+  <img src="./frontend/src/assets/auth_page.png" width="400" alt="Authentication Page">
+</div>
 
+---
 
 ## 🛠️ Setup & Installation
 
