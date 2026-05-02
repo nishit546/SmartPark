@@ -6,7 +6,7 @@ import heroCar from '../../assets/hero_car.png';
 
 const AuthLayout = ({ children, title, subtitle }) => {
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-700">
+    <div className="min-h-full flex bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-700">
       
       {/* Left Panel - Branding & Illustration */}
       <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden">
